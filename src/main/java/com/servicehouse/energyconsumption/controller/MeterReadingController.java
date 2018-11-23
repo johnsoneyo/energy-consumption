@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author johnson3yo
  */
-
 @RestController
 @RequestMapping("v1/meter-readings")
 public class MeterReadingController {
@@ -59,6 +58,15 @@ public class MeterReadingController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createMeterReading(@RequestBody MeterReadingDO[] readings) throws EnergyConsumptionException {
         service.createReading(readings);
+    }
+
+    /*
+    * Consumptions API 
+    */
+    @GetMapping("/{meterId}/{month}/consumptions")
+    @ResponseStatus(HttpStatus.OK)
+    public Integer getConsumptions(@PathVariable("meterId") String meterId, @PathVariable("month") String month) {
+        return service.getConsumptionByMeterIdAndMonth(meterId, month);
     }
 
 }

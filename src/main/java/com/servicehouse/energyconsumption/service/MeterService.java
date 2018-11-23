@@ -44,4 +44,8 @@ public class MeterService {
         repository.save(reading);
     }
 
+    public Integer getConsumptionByMeterIdAndMonth(String meterId, String month) {
+      return repository.getConsumptionByMeterIdAndMonth(meterId,meterId,month);
+    }
+
 }

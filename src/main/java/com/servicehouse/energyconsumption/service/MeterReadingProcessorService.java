@@ -25,6 +25,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MeterReadingProcessorService extends FileReader {
 
+    /*
+    This is the legacy file service implementation class
+    It relies heavily on Java 8 Stream API , design patterns such as SOLID, DRY 
+    (Dont Repeat Yourself) , SOC ( Separation of concern ) and abstraction is heavily used
+    
+    
+     */
     @Autowired
     private ProfileService profileService;
     @Autowired
@@ -83,11 +90,13 @@ public class MeterReadingProcessorService extends FileReader {
                 saving to DB
                  */
                 supplier.get().filter(items -> items.split(",").length > 1).
-                    filter(header -> !header.split(",")[0].
-                    startsWith("MeterID")).
-                        map( fields -> { return new MeterReadingDO(fields.split(",")[0],fields.split(",")[0],
-                                fields.split(",")[0],
-                                Integer.parseInt(fields.split(",")[0]));})
+                        filter(header -> !header.split(",")[0].
+                        startsWith("MeterID")).
+                        map(fields -> {
+                            return new MeterReadingDO(fields.split(",")[0], fields.split(",")[0],
+                                    fields.split(",")[0],
+                                    Integer.parseInt(fields.split(",")[0]));
+                        })
                         .peek(reading -> this.meterService.createReading(reading));
             }
         }
@@ -113,7 +122,7 @@ public class MeterReadingProcessorService extends FileReader {
     }
 
     public void processMeterReadingHttpRequest(MeterReadingDO[] readings) throws EnergyConsumptionException {
-         /*
+        /*
         Distinct profile is obtained from the stream and fraction for profiles 
         is checked for a period of 12 months 
         
@@ -134,11 +143,11 @@ public class MeterReadingProcessorService extends FileReader {
         the meter reading is ignored and the next is processed from the supplier 
         
          */
-        List<String> meters =  Stream.of(readings)
-                .map(meter ->  meter.getMeterId()).distinct().collect(Collectors.toList());
+        List<String> meters = Stream.of(readings)
+                .map(meter -> meter.getMeterId()).distinct().collect(Collectors.toList());
 
         for (String meter : meters) {
-            List<Integer> read = Stream.of(readings).filter(e -> e.getMeterId().equals(meter)).map( found -> found.getMeterReading()). collect(Collectors.toList());
+            List<Integer> read = Stream.of(readings).filter(e -> e.getMeterId().equals(meter)).map(found -> found.getMeterReading()).collect(Collectors.toList());
 
             /*
             validation happens here per distinct meter 
@@ -148,8 +157,7 @@ public class MeterReadingProcessorService extends FileReader {
                 go ahead to process meter reading 
                 saving to DB
                  */
-               Stream.of(readings)
-                       
+                Stream.of(readings)
                         .peek(reading -> this.meterService.createReading(reading));
             }
         }
